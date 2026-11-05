@@ -3,7 +3,7 @@
    cámara solo con gesto del usuario (iOS), nunca innerHTML con datos (solo textContent). */
 "use strict";
 
-const VERSION = "v0.1.0";
+const VERSION = "v0.1.1";
 const ENTORNOS = {
   staging: {
     nombre: "Pruebas",
@@ -461,6 +461,7 @@ async function mostrarResultado(r, declarada) {
   if (v !== "verde") {
     if (!centro) aviso = "Su centro no está registrado. Paula lo revisará; usted no tiene que hacer nada.";
     else if (declarada) aviso = "Es una hora declarada. El cliente la revisará.";
+    else if (!esNum(centro.lat) || !esNum(centro.lng)) aviso = "Este centro aún no tiene su ubicación registrada. Paula la completará; usted no tiene que hacer nada.";
     else if (r.distancia_m == null) aviso = "La marca quedó sin ubicación. Paula la revisará; usted no tiene que hacer nada.";
     else if (v === "rojo") aviso = `Quedó lejos del centro (${distanciaTexto(r.distancia_m).toLowerCase()}). Paula la revisará; usted no tiene que hacer nada.`;
     else aviso = "Este centro no estaba en su programación de hoy. Paula lo revisará; usted no tiene que hacer nada.";
