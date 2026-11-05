@@ -3,7 +3,7 @@
    cámara solo con gesto del usuario (iOS), nunca innerHTML con datos (solo textContent). */
 "use strict";
 
-const VERSION = "v0.1.1";
+const VERSION = "v0.2.0";
 const ENTORNOS = {
   staging: {
     nombre: "Pruebas",
@@ -41,7 +41,7 @@ function mostrar(id) {
 
 function horaTexto(fecha) {
   return new Intl.DateTimeFormat("es-CO", { timeZone: TZ, hour: "numeric", minute: "2-digit", hour12: true })
-    .format(fecha).replace(/\s?a\.?\s?m\.?/i, " a. m.").replace(/\s?p\.?\s?m\.?/i, " p. m.");
+    .format(fecha).replace(/\s?a\.?\s?m\.?/i, "\u00a0a.\u00a0m.").replace(/\s?p\.?\s?m\.?/i, "\u00a0p.\u00a0m.");
 }
 function fechaLarga(fecha) {
   const t = new Intl.DateTimeFormat("es-CO", { timeZone: TZ, weekday: "long", day: "numeric", month: "long" }).format(fecha);
@@ -293,6 +293,8 @@ function mostrarInicio() {
   const nombre = (estado.empleada.nombre || "").split(" ")[0];
   $("i-saludo").textContent = nombre ? `${saludo}, ${nombre}` : saludo;
   $("i-fecha").textContent = fechaLarga(ahora);
+  const reloj = () => { $("i-ahora").textContent = `Son las ${horaTexto(new Date())}`; };
+  reloj(); clearInterval(estado.tickInicio); estado.tickInicio = setInterval(reloj, 20000);
   estado.tipo = "entrada";
   estado.centroElegido = undefined;
   $("i-singps").hidden = true;
@@ -309,7 +311,7 @@ $("i-cambiar").addEventListener("click", () => {
     b.type = "button";
     const n = document.createElement("span"); n.className = "n"; n.textContent = c.nombre;
     const d = document.createElement("span"); d.className = "d";
-    d.textContent = [c.dist != null ? distanciaTexto(c.dist) : "", prog.has(c.id) ? "su centro de hoy" : ""].filter(Boolean).join(" · ") || " ";
+    d.textContent = [c.dist != null ? distanciaTexto(c.dist) : "Sin ubicación registrada", prog.has(c.id) ? "su centro de hoy" : ""].filter(Boolean).join(" · ");
     b.append(n, d);
     b.addEventListener("click", () => { estado.centroElegido = c; pintarCentro(); mostrar("p-inicio"); });
     li.append(b); ul.append(li);
@@ -337,7 +339,8 @@ async function abrirCamara() {
   const nombreCentro = estado.tipo === "entrada"
     ? (centroActual()?.nombre || "Centro no registrado")
     : (estado.centros.find((c) => c.id === estado.jornada?.centro_id)?.nombre || "");
-  $("k-sello").textContent = `${new Intl.DateTimeFormat("es-CO", { timeZone: TZ, dateStyle: "short" }).format(new Date())} · ${estado.tipo}\n${nombreCentro}`;
+  const dia = new Intl.DateTimeFormat("es-CO", { timeZone: TZ, weekday: "short", day: "numeric", month: "short" }).format(new Date());
+  $("k-sello").textContent = `${dia.charAt(0).toUpperCase() + dia.slice(1)} · ${estado.tipo === "entrada" ? "Entrada" : "Salida"}\n${nombreCentro}`;
   $("k-instr").textContent = "Ponga su cara en el óvalo";
   $("k-disparar").disabled = true;
   mostrar("p-camara");
@@ -494,7 +497,7 @@ async function mostrarJornada() {
   $("j-desde").textContent = `Desde las ${horaTexto(entrada)}`;
   const h = estado.horariosHoy.find((x) => x.centro_id === j.centro_id);
   $("j-horario").hidden = !h; $("j-barra").hidden = !h;
-  if (h) $("j-horario").textContent = `Su horario aquí: hasta las ${horaDe(h.hora_fin)}`;
+  if (h) $("j-horario").textContent = `Su horario aquí: ${horaDe(h.hora_inicio)} – ${horaDe(h.hora_fin)}`;
   const pintar = () => {
     const min = Math.max(0, Math.floor((Date.now() - entrada.getTime()) / 60000));
     $("j-duracion").textContent = min < 60 ? `${min} min` : `${Math.floor(min / 60)} h ${min % 60} min`;
@@ -520,7 +523,7 @@ function mostrarAdicional() {
     const [ha, ma] = ahora.split(":").map(Number), [hf, mf] = h.hora_fin.split(":").map(Number);
     const extra = (ha * 60 + ma) - (hf * 60 + mf);
     $("d-titulo").textContent = extra > 0 ? `Salió ${extra >= 60 ? Math.floor(extra / 60) + " h " : ""}${extra % 60} min después de su horario` : "Salió después de su horario";
-    $("d-sub").textContent = `Su horario termina a las ${horaDe(h.hora_fin)}. ¿Por qué se quedó?`;
+    $("d-sub").textContent = `Su horario termina a las ${horaDe(h.hora_fin)} ¿Por qué se quedó?`;
   }
   document.querySelectorAll("input[name=motivo]").forEach((r) => { r.checked = false; });
   $("d-detalle").value = "";

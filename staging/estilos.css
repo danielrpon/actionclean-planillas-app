@@ -23,7 +23,8 @@ main{flex:1;display:flex;flex-direction:column;width:100%;max-width:480px;margin
 .espacio{flex:1;min-height:20px}
 .centro-vertical{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 
-.logo{height:40px;width:auto;align-self:flex-start;margin-bottom:6px}
+.logo{height:44px;width:auto;align-self:flex-start;margin:2px 0 4px;object-fit:contain}
+#p-activar .logo,#p-entrar .logo{height:84px;margin:10px 0 6px}
 h1{font-size:27px;line-height:1.15;letter-spacing:-.01em;margin-top:12px;text-wrap:balance}
 .sub{color:var(--suave);font-size:17px;margin-top:4px}
 
@@ -68,6 +69,7 @@ h1{font-size:27px;line-height:1.15;letter-spacing:-.01em;margin-top:12px;text-wr
 
 /* Centro */
 .tarjeta-centro{margin-top:16px;border-radius:14px;background:var(--fondo);padding:16px}
+.ahora{font-size:15px;color:var(--suave);margin-top:2px;font-variant-numeric:tabular-nums}
 .tarjeta-centro .k{font-size:14px;color:var(--suave);font-weight:700}
 .tarjeta-centro .n{font-size:22px;font-weight:700;line-height:1.2;margin-top:4px}
 .tarjeta-centro .d{font-size:16px;color:var(--suave);margin-top:4px}
@@ -91,7 +93,7 @@ h1{font-size:27px;line-height:1.15;letter-spacing:-.01em;margin-top:12px;text-wr
 .disparo button:disabled{opacity:.5}
 
 /* Resultado */
-.resultado{display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:36px}
+.resultado{display:flex;flex-direction:column;align-items:center;text-align:center;margin:auto 0;padding-top:12px}
 .sello{width:116px;height:116px;border-radius:50%;display:grid;place-items:center}
 .sello svg{width:62px;height:62px}
 .sello[data-estado=verde]{background:var(--ok-bg);color:var(--ok)}

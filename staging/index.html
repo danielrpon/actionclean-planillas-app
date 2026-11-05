@@ -7,7 +7,8 @@
 <meta name="theme-color" content="#FFFFFF">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Planilla · Action Clean</title>
-<link rel="icon" href="logo.png">
+<link rel="icon" href="icono.png">
+<link rel="apple-touch-icon" href="icono.png">
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -21,7 +22,7 @@
 
   <!-- 1.1 Activar -->
   <section class="pantalla" id="p-activar" hidden>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-completo.png" alt="Action Clean · Expertos en Limpieza" width="433" height="240">
     <h1>Active su acceso</h1>
     <p class="sub">Solo se hace una vez.</p>
     <form id="f-activar" novalidate>
@@ -43,7 +44,7 @@
 
   <!-- 1.2 Entrar -->
   <section class="pantalla" id="p-entrar" hidden>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-completo.png" alt="Action Clean · Expertos en Limpieza" width="433" height="240">
     <h1>Entrar</h1>
     <form id="f-entrar" novalidate>
       <label class="campo">Cédula
@@ -63,9 +64,10 @@
 
   <!-- 1.3 Inicio -->
   <section class="pantalla" id="p-inicio" hidden>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-compacto.png" alt="Action Clean" width="356" height="160">
     <h1 id="i-saludo">Buenos días</h1>
     <p class="sub" id="i-fecha"></p>
+    <p class="ahora" id="i-ahora"></p>
     <div class="gps" id="i-gps" data-estado="buscando"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Buscando ubicación…</span></div>
     <button class="enlace izq" id="i-gps-pedir" type="button" hidden>Activar ubicación</button>
     <div class="aviso info" id="i-webview" hidden>Está dentro de WhatsApp: aquí la ubicación no funciona. Toque los tres puntos y elija <b>Abrir en Chrome</b> (o <b>Safari</b>).</div>
@@ -129,7 +131,7 @@
 
   <!-- 1.6 Jornada abierta -->
   <section class="pantalla" id="p-jornada" hidden>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-compacto.png" alt="Action Clean" width="356" height="160">
     <h1>Está trabajando</h1>
     <p class="sub" id="j-centro"></p>
     <div class="reloj">
@@ -188,7 +190,7 @@
 
   <!-- Sin acceso de empleada -->
   <section class="pantalla" id="p-noempleada" hidden>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-compacto.png" alt="Action Clean" width="356" height="160">
     <h1>Esta cuenta no tiene planilla</h1>
     <p class="sub">La cuenta con la que entró no corresponde a una empleada activa. Hable con Paula.</p>
     <div class="espacio"></div>

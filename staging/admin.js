@@ -3,7 +3,7 @@
    generar_codigo). Nunca innerHTML con datos: el DOM se arma con h(). */
 "use strict";
 
-const VERSION = "v0.1.1";
+const VERSION = "v0.2.0";
 const ENTORNOS = {
   staging: { nombre: "Pruebas", url: "https://yunevkubrndtccgocwfg.supabase.co", llave: "sb_publishable_zkDa9TL99nHBMzTDPW4FRA_m7fEx2cq" },
   produccion: null,
@@ -31,7 +31,9 @@ function h(tag, attrs = {}, ...hijos) {
   for (const c of hijos.flat()) if (c != null && c !== false) el.append(c instanceof Node ? c : String(c));
   return el;
 }
-const fmtHora = (d) => d ? new Intl.DateTimeFormat("es-CO", { timeZone: TZ, hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(d)) : "—";
+const fmtHora = (d) => d ? new Intl.DateTimeFormat("es-CO", { timeZone: TZ, hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(d)).replace(/\s/g, "\u00a0") : "—";
+const fmtDuracion = (h) => { const m = Math.round(h * 60); return `${Math.floor(m / 60)}\u00a0h ${String(m % 60).padStart(2, "0")}\u00a0min`; };
+const mapa = (lat, lng) => h("a", { href: `https://www.google.com/maps?q=${lat},${lng}`, target: "_blank", rel: "noopener noreferrer" }, "ver en el mapa");
 const fmtDia = (d) => new Intl.DateTimeFormat("es-CO", { timeZone: TZ, weekday: "short", day: "numeric", month: "short" }).format(new Date(d));
 const hoyISO = () => new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 const horaEfectiva = (m) => m && (m.hora_declarada || m.registrada_en);
@@ -52,7 +54,7 @@ function errorTexto(e) {
   return "No se pudo guardar. " + m;
 }
 function estadoChip(e, texto) {
-  const t = texto || { verde: "En orden", amarillo: "Para revisar", rojo: "Pendiente", abierta: "Abierta" }[e];
+  const t = texto || { verde: "En orden", amarillo: "Para revisar", rojo: "Por resolver", abierta: "Abierta" }[e];
   return h("span", { class: "estado", dataset: { e } }, t);
 }
 function ocupado(btn, si) { if (btn) { btn.disabled = si; } }
@@ -161,36 +163,36 @@ function filaPendiente(j) {
   let tipo = j.validacion, etiqueta, explica;
   const conGps = [ent, sal].find((m) => m && esNum(m.lat));
   if (abiertaVieja) { tipo = "abierta"; etiqueta = "Sin salida"; explica = `No marcó la salida el ${fmtDia(j.fecha + "T12:00:00-05:00")}. Ciérrela con la hora que confirme con ella o con el cliente.`; }
-  else if (!c) { etiqueta = "Sin centro"; explica = `Marcó «Mi centro no aparece».${conGps ? ` Ubicación: ${conGps.lat.toFixed(5)}, ${conGps.lng.toFixed(5)}.` : " Sin ubicación."}`; }
+  else if (!c) { etiqueta = "Sin centro"; explica = conGps ? "Marcó «Mi centro no aparece». Tiene ubicación:" : "Marcó «Mi centro no aparece», sin ubicación."; }
   else if (!esNum(c.lat)) { etiqueta = "Centro sin ubicación"; explica = `${c.nombre} aún no tiene coordenadas.${conGps ? " Puede usar la ubicación de esta marca para el centro." : ""}`; }
   else {
     const partes = [];
     for (const m of [ent, sal]) {
       if (!m) continue;
       const q = m.tipo === "entrada" ? "Entrada" : "Salida";
-      if (m.declarada) partes.push(`${q} declarada (sin foto) a las ${fmtHora(m.hora_declarada)}.`);
-      else if (m.distancia_m == null) partes.push(`${q} sin ubicación.`);
-      else if (m.validacion === "rojo") partes.push(`${q} a ${m.distancia_m} m de ${c.nombre} (precisión ±${Math.round(m.precision_m || 0)} m).`);
-      else if (m.validacion === "amarillo") partes.push(`${q} en ${c.nombre}, que no estaba en su programación.`);
+      if (m.declarada) partes.push(`${q} declarada (sin foto) a las ${fmtHora(m.hora_declarada)}`);
+      else if (m.distancia_m == null) partes.push(`${q} sin ubicación`);
+      else if (m.validacion === "rojo") partes.push(`${q} a ${m.distancia_m} m de ${c.nombre} (precisión ±${Math.round(m.precision_m || 0)} m)`);
+      else if (m.validacion === "amarillo") partes.push(`${q} en ${c.nombre}, que no estaba en su programación`);
     }
     etiqueta = j.validacion === "rojo" ? "Revisar" : "Para revisar";
-    explica = partes.join(" ") || "Revise la marca.";
+    explica = partes.length ? partes.map((p) => p.endsWith(".") ? p : p + ".").join(" ") : "Revise la marca.";
   }
-  if (j.minutos_adicionales > 0) explica += ` Tiempo adicional: ${j.minutos_adicionales} min («${j.motivo_adicional}»).`;
+  if (j.minutos_adicionales > 0) explica += ` Tiempo adicional: ${j.minutos_adicionales}\u00a0min («${j.motivo_adicional}»).`;
 
   const cont = h("div", { class: "pend" },
     estadoChip(tipo, etiqueta),
     h("div", { class: "quien" }, h("b", {}, e ? e.nombre : "—"),
       h("small", {}, `${fmtDia(horaEfectiva(ent) || j.fecha)} · ${fmtHora(horaEfectiva(ent))} – ${sal ? fmtHora(horaEfectiva(sal)) : "…"}`),
       h("small", {}, c ? c.nombre : "Sin centro")),
-    h("div", { class: "por" }, explica),
+    h("div", { class: "por" }, explica, conGps ? [" ", mapa(conGps.lat, conGps.lng), "."] : null),
   );
   const fotos = h("div", { class: "fotos" }); fotos.hidden = true;
   const zonaForm = h("div", { class: "form-inline" }); zonaForm.hidden = true;
   const acc = h("div", { class: "acc" });
 
   const conSelfie = j.marcas.filter((m) => m.selfie_path);
-  if (conSelfie.length) acc.append(h("button", { class: "btn sec chico", type: "button", onclick: async (ev) => {
+  if (conSelfie.length) acc.append(h("button", { class: "enlace chico", type: "button", onclick: async (ev) => {
     if (!fotos.hidden) { fotos.hidden = true; return; }
     ocupado(ev.currentTarget, true);
     const figs = [];
@@ -244,6 +246,9 @@ function filaPendiente(j) {
 
 /* ───────── Jornadas ───────── */
 $("j-fecha").addEventListener("change", pintarJornadas);
+const moverDia = (n) => { const d = new Date($("j-fecha").value + "T12:00:00-05:00"); d.setDate(d.getDate() + n); $("j-fecha").value = new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(d); pintarJornadas(); };
+$("j-ant").addEventListener("click", () => moverDia(-1));
+$("j-sig").addEventListener("click", () => moverDia(1));
 async function pintarJornadas() {
   const cuerpo = $("j-cuerpo");
   const { data, error } = await sb.from("jornadas")
@@ -258,9 +263,9 @@ async function pintarJornadas() {
     return h("tr", {},
       h("td", {}, empleadaPorId(j.empleada_id)?.nombre || "—"),
       h("td", {}, centroPorId(j.centro_id)?.nombre || "Sin centro"),
-      h("td", {}, fmtHora(horaEfectiva(ent))),
-      h("td", {}, sal ? fmtHora(horaEfectiva(sal)) : "—"),
-      h("td", { class: "num" }, horas != null ? horas.toFixed(2).replace(".", ",") : "—"),
+      h("td", { class: "h" }, fmtHora(horaEfectiva(ent))),
+      h("td", { class: "h" }, sal ? fmtHora(horaEfectiva(sal)) : "—"),
+      h("td", { class: "num h" }, horas != null ? fmtDuracion(horas) : "—"),
       h("td", {}, j.estado === "abierta" ? estadoChip("abierta") : estadoChip(j.validacion, j.revisada_en && j.validacion !== "verde" ? "Revisada" : null)),
       h("td", {}, h("small", {}, notas || "")));
   }));
@@ -294,7 +299,7 @@ async function generarCodigo(e, contenedor) {
   const nombre = e.nombre.split(" ")[0];
   const mensaje = `Hola ${nombre}, este es su acceso a la planilla digital de Action Clean:\n\n1. Abra este enlace en Chrome o Safari (no dentro de WhatsApp): ${URL_APP}\n2. Escriba su cédula y este código: *${data}*\n3. Cree un PIN de 6 números que solo usted conozca.\n\nEl código vence en 7 días.`;
   const caja = h("div", { class: "codigo" },
-    h("div", {}, h("div", {}, `Código para ${e.nombre}`), h("b", {}, data), h("small", { class: "ayuda" }, "Vence en 7 días. Solo se muestra esta vez.")),
+    h("div", {}, h("div", {}, `Código para ${e.nombre}`), h("b", {}, data), h("small", {}, "Vence en 7 días. Solo se muestra esta vez.")),
     h("button", { class: "btn chico", type: "button", onclick: async () => { await navigator.clipboard.writeText(mensaje); toast("Mensaje copiado. Péguelo en WhatsApp."); } }, "Copiar mensaje para WhatsApp"));
   contenedor.querySelector(".codigo")?.remove();
   contenedor.append(caja);
@@ -310,7 +315,7 @@ async function abrirFormEmpleada(e) {
   const nombre = h("input", { value: e?.nombre || "", required: true, maxlength: "120" });
   const cedula = h("input", { value: e?.cedula || "", inputmode: "numeric", required: true, maxlength: "12" });
   const perfil = h("select", {}, ...["LS", "LV", "DF", "SN"].map((p) => h("option", { value: p, selected: e?.perfil === p }, { LS: "LS · lunes a sábado", LV: "LV · lunes a viernes", DF: "DF · domingos y festivos", SN: "SN · supernumeraria" }[p])));
-  const puesto = h("select", {}, h("option", { value: "fijo", selected: e?.puesto !== "movil" }, "Fijo (aprobación semanal)"), h("option", { value: "movil", selected: e?.puesto === "movil" }, "Móvil (aprobación diaria)"));
+  const puesto = h("select", {}, h("option", { value: "fijo", selected: e?.puesto !== "movil" }, "Fijo · aprueba semanal"), h("option", { value: "movil", selected: e?.puesto === "movil" }, "Móvil · aprueba diaria"));
   const habitual = h("select", {}, ...opcCentros(e?.centro_habitual_id));
   const activa = h("select", {}, h("option", { value: "1", selected: e?.activa !== false }, "Activa"), h("option", { value: "0", selected: e?.activa === false }, "Inactiva"));
   const err = h("p", { class: "error", role: "alert", hidden: true });
@@ -333,7 +338,7 @@ async function abrirFormEmpleada(e) {
       h("label", { class: "campo" }, "Cédula", cedula),
       h("label", { class: "campo" }, "Perfil", perfil),
       h("label", { class: "campo" }, "Puesto", puesto),
-      h("label", { class: "campo" }, "Centro habitual", h("span", { class: "ayuda" }, "Opcional. Los horarios de abajo también cuentan."), habitual),
+      h("label", { class: "campo" }, "Centro habitual", habitual, h("span", { class: "ayuda" }, "Opcional. Los horarios de abajo también cuentan.")),
       h("label", { class: "campo" }, "Estado", activa)),
     err,
   ];
@@ -357,7 +362,7 @@ async function bloqueHorarios(e) {
       h("b", {}, centroPorId(x.centro_id)?.nombre || "—"),
       h("span", {}, DIAS.filter(([n]) => x.dias.includes(n)).map(([, l]) => l).join(" ")),
       h("span", {}, `${x.hora_inicio.slice(0, 5)}–${x.hora_fin.slice(0, 5)}`),
-      h("button", { class: "btn peligro chico", type: "button", onclick: async () => {
+      h("button", { class: "enlace rojo chico", type: "button", onclick: async () => {
         const ayer = new Date(Date.now() - 86400000); const f = new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(ayer);
         const { error } = await sb.from("horarios_habituales").update({ vigente_hasta: f }).eq("id", x.id);
         if (error) return toast(errorTexto(error), "error");
@@ -433,7 +438,7 @@ function abrirFormCentro(c, coordsIniciales) {
       h("label", { class: "campo" }, "Nombre del centro", nombre),
       h("label", { class: "campo" }, "Dirección", direccion),
       h("label", { class: "campo" }, "Ubicación", ubic, lectura),
-      h("label", { class: "campo" }, "Radio (metros)", h("span", { class: "ayuda" }, "Distancia aceptada. 150 m por defecto; más en edificios grandes."), radio),
+      h("label", { class: "campo" }, "Radio (metros)", radio, h("span", { class: "ayuda" }, "Distancia aceptada. 150 m por defecto; más en edificios grandes.")),
       h("label", { class: "campo" }, "Estado", activo)),
     err,
     h("div", { class: "pie-panel" }, h("button", { class: "btn sec", type: "button", onclick: () => { f.hidden = true; } }, "Cerrar"), guardar));

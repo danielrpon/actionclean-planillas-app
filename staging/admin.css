@@ -13,7 +13,8 @@ html{background:var(--fondo);color:var(--tinta);font:15px/1.45 "Helvetica Neue",
 .tira{height:4px;background:var(--marca)}
 h1{font-size:22px;line-height:1.2;letter-spacing:-.01em}
 .sub{color:var(--suave);margin-top:2px}
-.logo{height:36px;width:auto;display:block}
+.logo{height:40px;width:auto;display:block;align-self:flex-start;object-fit:contain;flex:none}
+.tarjeta-login .logo{height:80px;margin-bottom:4px}
 
 /* Controles */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--azul);color:#fff;font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;transition:transform 160ms var(--ease-out),background-color 150ms ease}
@@ -23,6 +24,8 @@ h1{font-size:22px;line-height:1.2;letter-spacing:-.01em}
 .btn.peligro{background:var(--papel);color:var(--mal);box-shadow:inset 0 0 0 1.5px #F3C4BF}
 .btn.chico{min-height:38px;padding:0 14px;font-size:14px}
 @media (hover:hover) and (pointer:fine){.btn:hover{background:var(--azul-osc)}.btn.sec:hover,.btn.peligro:hover{background:#F6F9FC}.btn.sec:hover{color:var(--azul-osc)}}
+.enlace.rojo{color:var(--mal)}
+.enlace.chico{font-size:14px}
 .enlace{background:none;border:0;color:var(--azul);font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0}
 .campo{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:14px}
 .campo .ayuda{font-weight:400;color:var(--suave);font-size:13px}
@@ -40,7 +43,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 /* Estructura */
 .app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100dvh - 4px)}
 .nav{background:var(--papel);border-right:1px solid var(--linea);padding:18px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:calc(100dvh - 4px)}
-.nav .logo{margin:2px 8px 18px}
+.nav .logo{margin:4px 10px 20px}
 .nav-item{display:flex;align-items:center;justify-content:space-between;text-align:left;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;font:inherit;font-weight:600;color:var(--tinta);cursor:pointer;transition:background-color 150ms ease}
 .nav-item[aria-current=page]{background:#E8F1F9;color:var(--azul-osc)}
 @media (hover:hover) and (pointer:fine){.nav-item:not([aria-current=page]):hover{background:#EEF1F6}}
@@ -50,6 +53,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 .main{padding:26px 30px 60px;min-width:0}
 .cab{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
 .fecha{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.btn.icono{min-width:38px;padding:0;font-size:18px}
 
 /* Pendientes */
 .lista{display:flex;flex-direction:column;background:var(--papel);border-radius:14px;box-shadow:0 1px 2px rgba(27,26,46,.06);overflow:hidden}
@@ -58,6 +62,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 .pend .quien b{display:block}
 .pend .quien small{display:block;color:var(--suave);font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
 .pend .por{color:#33354A}
+.pend .por a{color:var(--azul);font-weight:600;text-underline-offset:3px}
 .pend > .estado{white-space:normal;line-height:1.25;justify-self:start}
 .pend .acc{grid-column:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pend .form-inline{grid-column:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
@@ -85,6 +90,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 .tabla{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .tabla th{text-align:left;font-size:12.5px;color:var(--suave);font-weight:700;padding:12px 14px;border-bottom:1.5px solid var(--linea);white-space:nowrap}
 .tabla td{padding:12px 14px;border-bottom:1px solid var(--linea);vertical-align:top}
+.tabla td.h{white-space:nowrap}
 .tabla tr:last-child td{border-bottom:0}
 .tabla .num{text-align:right}
 .tabla .acciones{text-align:right;white-space:nowrap}
@@ -94,7 +100,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 /* Paneles de formulario */
 .panel{background:var(--papel);border-radius:14px;box-shadow:0 1px 2px rgba(27,26,46,.06),0 8px 24px rgba(27,26,46,.06);padding:22px;margin-bottom:18px}
 .panel h2{font-size:17px;margin-bottom:14px}
-.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.rejilla{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;align-items:start}
 .panel .pie-panel{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
 .horarios{margin-top:18px;border-top:1px solid var(--linea);padding-top:16px}
 .horarios h3{font-size:15px;margin-bottom:10px}
@@ -106,7 +112,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 .dias input:checked+span{background:var(--azul);border-color:var(--azul);color:#fff}
 .dias input:focus-visible+span{outline:3px solid var(--cian);outline-offset:2px}
 .codigo{margin-top:12px;background:#E8F3FB;color:#124A74;border-radius:12px;padding:16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.codigo b{font-size:30px;letter-spacing:.08em;font-variant-numeric:tabular-nums;color:var(--tinta)}
+.codigo b{display:block;font-size:30px;letter-spacing:.08em;font-variant-numeric:tabular-nums;color:var(--tinta);line-height:1.2;margin:2px 0}
+.codigo small{display:block;font-size:13px}
 
 /* Toast */
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--tinta);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:0 8px 24px rgba(27,26,46,.25);max-width:calc(100vw - 32px);transition:opacity 200ms var(--ease-out),transform 200ms var(--ease-out)}
@@ -118,7 +125,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
   .app{grid-template-columns:1fr}
   .nav{position:sticky;top:0;z-index:5;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:8px 10px;border-right:0;border-bottom:1px solid var(--linea);gap:4px}
   .nav .logo,.nav .sep{display:none}
-  .nav-item{width:auto;white-space:nowrap;gap:8px}
+  .nav-item{width:auto;white-space:nowrap;gap:8px;padding:8px 10px}
   .nav-pie{margin:0 0 0 auto;padding:0 6px;gap:10px}
   .nav-pie #pie-entorno{display:none}
   .main{padding:18px 14px 40px}

@@ -6,7 +6,8 @@
 <meta name="robots" content="noindex, nofollow">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <title>Administración · Planilla · Action Clean</title>
-<link rel="icon" href="logo.png">
+<link rel="icon" href="icono.png">
+<link rel="apple-touch-icon" href="icono.png">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
@@ -15,7 +16,7 @@
 <!-- Ingreso -->
 <section id="v-login" class="login" hidden>
   <form id="f-login" class="tarjeta-login" novalidate>
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-completo.png" alt="Action Clean · Expertos en Limpieza" width="433" height="240">
     <h1>Administración</h1>
     <p class="sub">Planilla digital</p>
     <label class="campo">Correo<input id="l-correo" type="email" autocomplete="username" required></label>
@@ -28,7 +29,7 @@
 <!-- App -->
 <div id="v-app" class="app" hidden>
   <nav class="nav" aria-label="Secciones">
-    <img class="logo" src="logo.png" alt="Action Clean">
+    <img class="logo" src="logo-compacto.png" alt="Action Clean" width="356" height="160">
     <button class="nav-item" data-vista="pendientes" aria-current="page">Pendientes <span class="cnt" id="n-pend" hidden></span></button>
     <button class="nav-item" data-vista="jornadas">Jornadas</button>
     <div class="sep" role="presentation"></div>
@@ -51,7 +52,7 @@
     <!-- Jornadas -->
     <section class="vista" id="vista-jornadas" hidden>
       <header class="cab"><div><h1>Jornadas</h1><p class="sub">Entradas y salidas por día.</p></div>
-        <label class="fecha">Día <input id="j-fecha" type="date"></label></header>
+        <div class="fecha"><button class="btn sec chico icono" type="button" id="j-ant" aria-label="Día anterior">‹</button><label class="fecha">Día <input id="j-fecha" type="date"></label><button class="btn sec chico icono" type="button" id="j-sig" aria-label="Día siguiente">›</button></div></header>
       <div class="tabla-envoltura"><table class="tabla">
         <thead><tr><th>Empleada</th><th>Centro</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th><th>Estado</th><th>Nota</th></tr></thead>
         <tbody id="j-cuerpo"></tbody>
