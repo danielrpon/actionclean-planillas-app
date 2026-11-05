@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Administración · Planilla · Action Clean</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="tira" role="presentation"></div>
+
+<!-- Ingreso -->
+<section id="v-login" class="login" hidden>
+  <form id="f-login" class="tarjeta-login" novalidate>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1>Administración</h1>
+    <p class="sub">Planilla digital</p>
+    <label class="campo">Correo<input id="l-correo" type="email" autocomplete="username" required></label>
+    <label class="campo">Contraseña<input id="l-clave" type="password" autocomplete="current-password" required></label>
+    <p class="error" id="l-error" role="alert" hidden></p>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</section>
+
+<!-- App -->
+<div id="v-app" class="app" hidden>
+  <nav class="nav" aria-label="Secciones">
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <button class="nav-item" data-vista="pendientes" aria-current="page">Pendientes <span class="cnt" id="n-pend" hidden></span></button>
+    <button class="nav-item" data-vista="jornadas">Jornadas</button>
+    <div class="sep" role="presentation"></div>
+    <button class="nav-item" data-vista="empleadas">Empleadas</button>
+    <button class="nav-item" data-vista="centros">Centros</button>
+    <div class="nav-pie">
+      <span id="pie-entorno"></span>
+      <button class="enlace" id="b-salir" type="button">Salir</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- Pendientes -->
+    <section class="vista" id="vista-pendientes">
+      <header class="cab"><div><h1>Pendientes</h1><p class="sub">Marcas que necesitan una decisión. Ninguna se perdió: todas quedaron guardadas.</p></div>
+        <button class="btn sec chico" type="button" data-recargar>Actualizar</button></header>
+      <div id="pend-lista" class="lista"></div>
+    </section>
+
+    <!-- Jornadas -->
+    <section class="vista" id="vista-jornadas" hidden>
+      <header class="cab"><div><h1>Jornadas</h1><p class="sub">Entradas y salidas por día.</p></div>
+        <label class="fecha">Día <input id="j-fecha" type="date"></label></header>
+      <div class="tabla-envoltura"><table class="tabla">
+        <thead><tr><th>Empleada</th><th>Centro</th><th>Entrada</th><th>Salida</th><th class="num">Horas</th><th>Estado</th><th>Nota</th></tr></thead>
+        <tbody id="j-cuerpo"></tbody>
+      </table></div>
+    </section>
+
+    <!-- Empleadas -->
+    <section class="vista" id="vista-empleadas" hidden>
+      <header class="cab"><div><h1>Empleadas</h1><p class="sub">Ficha, centros y horarios, y acceso a la app.</p></div>
+        <button class="btn chico" type="button" id="b-nueva-emp">Nueva empleada</button></header>
+      <div id="emp-form" class="panel" hidden></div>
+      <div class="tabla-envoltura"><table class="tabla">
+        <thead><tr><th>Nombre</th><th>Cédula</th><th>Perfil</th><th>Puesto</th><th>Centro habitual</th><th>Acceso</th><th></th></tr></thead>
+        <tbody id="emp-cuerpo"></tbody>
+      </table></div>
+    </section>
+
+    <!-- Centros -->
+    <section class="vista" id="vista-centros" hidden>
+      <header class="cab"><div><h1>Centros</h1><p class="sub">Los centros activos aparecen en la app de todas las empleadas.</p></div>
+        <button class="btn chico" type="button" id="b-nuevo-centro">Nuevo centro</button></header>
+      <div id="centro-form" class="panel" hidden></div>
+      <div class="tabla-envoltura"><table class="tabla">
+        <thead><tr><th>Centro</th><th>Cliente</th><th>Dirección</th><th>Ubicación</th><th class="num">Radio</th><th></th></tr></thead>
+        <tbody id="centro-cuerpo"></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="vendor/supabase.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
