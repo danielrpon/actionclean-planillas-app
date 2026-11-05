@@ -39,7 +39,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 
 /* Estructura */
 .app{display:grid;grid-template-columns:220px 1fr;min-height:calc(100dvh - 4px)}
-.nav{background:var(--nav);border-right:1px solid var(--linea);padding:18px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:calc(100dvh - 4px)}
+.nav{background:var(--papel);border-right:1px solid var(--linea);padding:18px 12px;display:flex;flex-direction:column;gap:2px;position:sticky;top:0;height:calc(100dvh - 4px)}
 .nav .logo{margin:2px 8px 18px}
 .nav-item{display:flex;align-items:center;justify-content:space-between;text-align:left;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;font:inherit;font-weight:600;color:var(--tinta);cursor:pointer;transition:background-color 150ms ease}
 .nav-item[aria-current=page]{background:#E8F1F9;color:var(--azul-osc)}
@@ -53,11 +53,12 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--azul);bo
 
 /* Pendientes */
 .lista{display:flex;flex-direction:column;background:var(--papel);border-radius:14px;box-shadow:0 1px 2px rgba(27,26,46,.06);overflow:hidden}
-.pend{display:grid;grid-template-columns:120px minmax(160px,220px) minmax(0,1fr);gap:8px 18px;padding:18px 20px;border-bottom:1px solid var(--linea)}
+.pend{display:grid;grid-template-columns:150px minmax(160px,220px) minmax(0,1fr);gap:8px 18px;padding:18px 20px;border-bottom:1px solid var(--linea)}
 .pend:last-child{border-bottom:0}
 .pend .quien b{display:block}
 .pend .quien small{display:block;color:var(--suave);font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
 .pend .por{color:#33354A}
+.pend > .estado{white-space:normal;line-height:1.25;justify-self:start}
 .pend .acc{grid-column:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pend .form-inline{grid-column:3;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
 .pend .form-inline input,.pend .form-inline select{flex:1;min-width:180px}

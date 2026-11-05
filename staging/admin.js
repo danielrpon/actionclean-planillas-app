@@ -3,7 +3,7 @@
    generar_codigo). Nunca innerHTML con datos: el DOM se arma con h(). */
 "use strict";
 
-const VERSION = "v0.1.0";
+const VERSION = "v0.1.1";
 const ENTORNOS = {
   staging: { nombre: "Pruebas", url: "https://yunevkubrndtccgocwfg.supabase.co", llave: "sb_publishable_zkDa9TL99nHBMzTDPW4FRA_m7fEx2cq" },
   produccion: null,
