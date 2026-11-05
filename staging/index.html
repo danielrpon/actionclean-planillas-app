@@ -1,2 +1,215 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Planilla digital · Action Clean</title></head>
-<body style="font:18px/1.5 Helvetica,Arial,sans-serif;padding:32px;color:#1B1A2E"><h1 style="font-size:24px">Planilla digital · Action Clean</h1><p>En construcción.</p></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFFFFF">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>Planilla · Action Clean</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div class="tira" role="presentation"></div>
+<main id="app">
+
+  <!-- Cargando -->
+  <section class="pantalla" id="p-cargando" data-activa>
+    <div class="centro-vertical"><span class="giro" aria-hidden="true"></span><p class="sub">Cargando…</p></div>
+  </section>
+
+  <!-- 1.1 Activar -->
+  <section class="pantalla" id="p-activar" hidden>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1>Active su acceso</h1>
+    <p class="sub">Solo se hace una vez.</p>
+    <form id="f-activar" novalidate>
+      <label class="campo">Cédula
+        <input id="a-cedula" inputmode="numeric" autocomplete="off" maxlength="12" required>
+      </label>
+      <label class="campo">Código de activación<span class="ayuda">Se lo da Paula por WhatsApp</span>
+        <input id="a-codigo" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="7" required>
+      </label>
+      <label class="campo">Cree un PIN de 6 números<span class="ayuda">Como el de la app del banco</span>
+        <input id="a-pin" class="pin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6" required>
+      </label>
+      <p class="error" id="a-error" role="alert" hidden></p>
+      <div class="espacio"></div>
+      <button class="btn" type="submit">Activar</button>
+      <button class="enlace" type="button" data-ir="p-entrar">Ya tengo PIN</button>
+    </form>
+  </section>
+
+  <!-- 1.2 Entrar -->
+  <section class="pantalla" id="p-entrar" hidden>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1>Entrar</h1>
+    <form id="f-entrar" novalidate>
+      <label class="campo">Cédula
+        <input id="e-cedula" inputmode="numeric" autocomplete="username" maxlength="12" required>
+      </label>
+      <label class="campo">PIN
+        <input id="e-pin" class="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" required>
+      </label>
+      <p class="error" id="e-error" role="alert" hidden></p>
+      <div class="aviso info" id="e-webview" hidden>Si abrió el enlace dentro de WhatsApp, la ubicación no funciona. Toque los tres puntos y elija <b>Abrir en Chrome</b> (o <b>Abrir en Safari</b>).</div>
+      <div class="espacio"></div>
+      <button class="btn" type="submit">Entrar</button>
+      <button class="enlace" type="button" data-ir="p-activar">Es mi primera vez · tengo un código</button>
+      <p class="nota-centro">¿Olvidó el PIN? Pídale a Paula un código nuevo.</p>
+    </form>
+  </section>
+
+  <!-- 1.3 Inicio -->
+  <section class="pantalla" id="p-inicio" hidden>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1 id="i-saludo">Buenos días</h1>
+    <p class="sub" id="i-fecha"></p>
+    <div class="gps" id="i-gps" data-estado="buscando"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Buscando ubicación…</span></div>
+    <button class="enlace izq" id="i-gps-pedir" type="button" hidden>Activar ubicación</button>
+    <div class="aviso info" id="i-webview" hidden>Está dentro de WhatsApp: aquí la ubicación no funciona. Toque los tres puntos y elija <b>Abrir en Chrome</b> (o <b>Safari</b>).</div>
+    <div class="tarjeta-centro" id="i-centro">
+      <div class="k">Usted está en</div>
+      <div class="n" id="i-centro-nombre">—</div>
+      <div class="d" id="i-centro-detalle"></div>
+      <button class="cambiar" id="i-cambiar" type="button">Es otro centro</button>
+    </div>
+    <div class="espacio"></div>
+    <div class="confirmar-sin-gps" id="i-singps" hidden>
+      <p>Aún no tenemos su ubicación. Puede esperar unos segundos o marcar igual; la marca quedará para revisión.</p>
+      <button class="btn sec" id="i-singps-si" type="button">Marcar sin ubicación</button>
+    </div>
+    <button class="btn" id="i-marcar" type="button"><svg aria-hidden="true"><use href="#i-camara"/></svg><span>Marcar entrada</span></button>
+    <button class="enlace" id="i-no-esta" type="button">Mi centro no aparece</button>
+  </section>
+
+  <!-- Lista de centros -->
+  <section class="pantalla" id="p-centros" hidden>
+    <h1>¿En qué centro está?</h1>
+    <p class="sub">Los más cercanos van primero.</p>
+    <ul class="lista-centros" id="c-lista"></ul>
+    <button class="btn sec" type="button" data-ir="p-inicio">Volver</button>
+  </section>
+
+  <!-- 1.4 Cámara -->
+  <section class="pantalla oscura" id="p-camara" hidden>
+    <div class="visor">
+      <video id="k-video" playsinline muted autoplay></video>
+      <div class="ovalo" aria-hidden="true"></div>
+      <p class="instr" id="k-instr">Ponga su cara en el óvalo</p>
+      <p class="sello-visor" id="k-sello"></p>
+    </div>
+    <div class="disparo">
+      <button id="k-disparar" type="button" aria-label="Tomar foto"></button>
+    </div>
+    <button class="enlace claro" id="k-cancelar" type="button">Cancelar</button>
+    <input id="k-respaldo" type="file" accept="image/*" capture="user" hidden>
+  </section>
+
+  <!-- Enviando -->
+  <section class="pantalla" id="p-enviando" hidden>
+    <div class="centro-vertical"><span class="giro" aria-hidden="true"></span><p class="sub" id="v-texto">Guardando su marca…</p></div>
+  </section>
+
+  <!-- 1.5 / 1.9 Resultado -->
+  <section class="pantalla" id="p-resultado" hidden>
+    <div class="resultado">
+      <div class="sello" id="r-sello"><svg aria-hidden="true"><use id="r-icono" href="#i-ok"/></svg></div>
+      <h1 id="r-titulo">Entrada registrada</h1>
+      <div class="hora" id="r-hora"></div>
+      <p class="sub" id="r-centro"></p>
+      <span class="estado" id="r-estado"></span>
+    </div>
+    <div class="aviso rev" id="r-aviso" hidden></div>
+    <div class="aviso info" id="r-siguiente" hidden></div>
+    <div class="espacio"></div>
+    <button class="btn sec" id="r-listo" type="button">Listo</button>
+  </section>
+
+  <!-- 1.6 Jornada abierta -->
+  <section class="pantalla" id="p-jornada" hidden>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1>Está trabajando</h1>
+    <p class="sub" id="j-centro"></p>
+    <div class="reloj">
+      <div class="t" id="j-duracion">—</div>
+      <div class="l" id="j-desde"></div>
+      <div class="barra" id="j-barra" hidden><i id="j-barra-i"></i></div>
+      <div class="linea-tiempo" id="j-horario" hidden></div>
+    </div>
+    <div class="gps" id="j-gps" data-estado="buscando"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>Buscando ubicación…</span></div>
+    <div class="espacio"></div>
+    <div class="confirmar-sin-gps" id="j-singps" hidden>
+      <p>Aún no tenemos su ubicación. Puede esperar unos segundos o marcar igual; la marca quedará para revisión.</p>
+      <button class="btn sec" id="j-singps-si" type="button">Marcar sin ubicación</button>
+    </div>
+    <button class="btn" id="j-marcar" type="button"><svg aria-hidden="true"><use href="#i-salida"/></svg><span>Marcar salida</span></button>
+  </section>
+
+  <!-- 1.7 Tiempo adicional -->
+  <section class="pantalla" id="p-adicional" hidden>
+    <h1 id="d-titulo">Salió después de su horario</h1>
+    <p class="sub" id="d-sub">¿Por qué se quedó?</p>
+    <form id="f-adicional" novalidate>
+      <fieldset class="motivos">
+        <legend class="sr">Motivo</legend>
+        <label class="motivo"><input type="radio" name="motivo" value="El cliente me pidió algo más"><span>El cliente me pidió algo más</span></label>
+        <label class="motivo"><input type="radio" name="motivo" value="Terminé una tarea pendiente"><span>Terminé una tarea pendiente</span></label>
+        <label class="motivo"><input type="radio" name="motivo" value="Me cambiaron el horario"><span>Me cambiaron el horario</span></label>
+        <label class="motivo"><input type="radio" name="motivo" value="Otro motivo"><span>Otro motivo</span></label>
+      </fieldset>
+      <label class="campo">¿Qué pasó? <span class="ayuda" id="d-ayuda">Opcional</span>
+        <input id="d-detalle" maxlength="200" autocomplete="off">
+      </label>
+      <p class="error" id="d-error" role="alert" hidden></p>
+      <div class="espacio"></div>
+      <button class="btn" type="submit">Enviar salida</button>
+    </form>
+  </section>
+
+  <!-- 1.8 Salida olvidada -->
+  <section class="pantalla" id="p-olvidada" hidden>
+    <h1>No marcó la salida</h1>
+    <p class="sub" id="o-sub"></p>
+    <form id="f-olvidada" novalidate>
+      <label class="campo" for="o-hora">¿A qué hora salió?</label>
+      <div class="selector-hora">
+        <select id="o-hora" aria-label="Hora"></select>
+        <select id="o-min" aria-label="Minutos"></select>
+        <select id="o-ampm" aria-label="a. m. o p. m."><option value="am">a. m.</option><option value="pm" selected>p. m.</option></select>
+      </div>
+      <div class="aviso rev"><svg aria-hidden="true"><use href="#i-rev"/></svg><span>Quedará como <b>hora declarada</b>, sin foto. El cliente la revisará.</span></div>
+      <p class="error" id="o-error" role="alert" hidden></p>
+      <div class="espacio"></div>
+      <button class="btn" type="submit">Guardar y seguir</button>
+    </form>
+  </section>
+
+  <!-- Sin acceso de empleada -->
+  <section class="pantalla" id="p-noempleada" hidden>
+    <img class="logo" src="logo.png" alt="Action Clean">
+    <h1>Esta cuenta no tiene planilla</h1>
+    <p class="sub">La cuenta con la que entró no corresponde a una empleada activa. Hable con Paula.</p>
+    <div class="espacio"></div>
+    <button class="btn sec" type="button" data-salir>Salir</button>
+  </section>
+
+</main>
+<footer class="pie">
+  <span id="pie-version"></span>
+  <button class="enlace pequeno" id="pie-salir" type="button" data-salir hidden>Salir</button>
+</footer>
+
+<svg width="0" height="0" class="sr" aria-hidden="true">
+  <symbol id="i-camara" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.7 2.7L16.2 9.4"/></symbol>
+  <symbol id="i-rev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.2M12 17.2v.1"/></symbol>
+  <symbol id="i-mal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="m9.2 9.2 5.6 5.6M14.8 9.2l-5.6 5.6"/></symbol>
+  <symbol id="i-salida" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h5v16h-5"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
+</svg>
+
+<script src="vendor/supabase.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
