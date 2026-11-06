@@ -3,7 +3,7 @@
    generar_codigo). Nunca innerHTML con datos: el DOM se arma con h(). */
 "use strict";
 
-const VERSION = "v0.2.0";
+const VERSION = "v0.2.1";
 const ENTORNOS = {
   staging: { nombre: "Pruebas", url: "https://yunevkubrndtccgocwfg.supabase.co", llave: "sb_publishable_zkDa9TL99nHBMzTDPW4FRA_m7fEx2cq" },
   produccion: null,
@@ -73,10 +73,21 @@ function coordenadasDe(texto) {
 async function iniciar() {
   $("pie-entorno").textContent = `${VERSION}${ES_STAGING ? " · " + ENT.nombre : ""}`;
   if (!ENT) { document.body.append(h("p", { class: "vacio" }, "Esta versión aún no está disponible.")); return; }
-  sb = window.supabase.createClient(ENT.url, ENT.llave, { auth: { persistSession: true, autoRefreshToken: true } });
+  // Sesión propia: no se mezcla con la de la app de la empleada aunque estén en el mismo dominio.
+  sb = window.supabase.createClient(ENT.url, ENT.llave, { auth: { persistSession: true, autoRefreshToken: true, storageKey: `ac-planilla-admin-${ES_STAGING ? "staging" : "prod"}` } });
+  sb.auth.onAuthStateChange((evento) => { if (evento === "SIGNED_OUT") volverAlIngreso("Su sesión se cerró. Entre de nuevo."); });
   const { data } = await sb.auth.getSession();
   if (data.session && await esAdmin()) return entrar();
   $("v-login").hidden = false;
+}
+function volverAlIngreso(texto) {
+  $("v-app").hidden = true; $("v-login").hidden = false;
+  if (texto) { $("l-error").textContent = texto; $("l-error").hidden = false; }
+}
+// Si una consulta falla, confirmar que la sesión sigue siendo de administración.
+async function revisarSesion() {
+  if (!await esAdmin()) { await sb.auth.signOut(); volverAlIngreso("Su sesión venció o cambió. Entre de nuevo."); return false; }
+  return true;
 }
 async function esAdmin() {
   const { data } = await sb.rpc("es_admin");
@@ -131,7 +142,7 @@ async function pintarPendientes() {
   const { data: js, error } = await sb.from("jornadas")
     .select("id,empleada_id,centro_id,fecha,estado,validacion,pendiente_paula,minutos_adicionales,motivo_adicional,marcas(id,tipo,registrada_en,hora_declarada,declarada,lat,lng,precision_m,distancia_m,selfie_path,validacion)")
     .is("revisada_en", null).order("creado_en", { ascending: false }).limit(200);
-  if (error) { lista.replaceChildren(h("p", { class: "vacio" }, "No se pudieron cargar los pendientes.")); return; }
+  if (error) { if (await revisarSesion()) lista.replaceChildren(h("p", { class: "vacio" }, "No se pudieron cargar los pendientes. Toque «Actualizar».")); return; }
   const hoy = hoyISO();
   const pend = (js || []).filter((j) => j.validacion !== "verde" || (j.estado === "abierta" && j.fecha < hoy));
   const bloqueadas = datos.empleadas.filter((e) => datos.accesos.get(e.id)?.bloqueada);
@@ -254,7 +265,7 @@ async function pintarJornadas() {
   const { data, error } = await sb.from("jornadas")
     .select("id,empleada_id,centro_id,fecha,estado,validacion,minutos_adicionales,motivo_adicional,nota_revision,revisada_en,marcas(tipo,registrada_en,hora_declarada,declarada)")
     .eq("fecha", $("j-fecha").value).order("creado_en");
-  if (error) { cuerpo.replaceChildren(h("tr", {}, h("td", { colspan: "7" }, "No se pudieron cargar."))); return; }
+  if (error) { if (await revisarSesion()) cuerpo.replaceChildren(h("tr", {}, h("td", { colspan: "7" }, "No se pudieron cargar."))); return; }
   if (!data.length) { cuerpo.replaceChildren(h("tr", {}, h("td", { colspan: "7", class: "vacio" }, "No hay jornadas ese día."))); return; }
   cuerpo.replaceChildren(...data.map((j) => {
     const ent = j.marcas.find((m) => m.tipo === "entrada"), sal = j.marcas.find((m) => m.tipo === "salida");

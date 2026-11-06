@@ -3,7 +3,7 @@
    cámara solo con gesto del usuario (iOS), nunca innerHTML con datos (solo textContent). */
 "use strict";
 
-const VERSION = "v0.2.0";
+const VERSION = "v0.2.1";
 const ENTORNOS = {
   staging: {
     nombre: "Pruebas",
@@ -96,7 +96,8 @@ async function iniciar() {
     $("p-cargando").querySelector(".sub").textContent = "Esta versión aún no está disponible.";
     return;
   }
-  sb = window.supabase.createClient(ENT.url, ENT.llave, { auth: { persistSession: true, autoRefreshToken: true } });
+  // Sesión propia: no se mezcla con la de administración aunque estén en el mismo dominio.
+  sb = window.supabase.createClient(ENT.url, ENT.llave, { auth: { persistSession: true, autoRefreshToken: true, storageKey: `ac-planilla-empleada-${ES_STAGING ? "staging" : "prod"}` } });
   const ced = localStorage.getItem(CLAVE_CEDULA) || "";
   $("e-cedula").value = ced; $("a-cedula").value = ced;
   $("e-webview").hidden = !esWebview();
