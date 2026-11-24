@@ -5,7 +5,7 @@
    la red nunca bloquea el ejercicio. */
 "use strict";
 
-const VERSION = "cap-v1.0";
+const VERSION = "cap-v1.1";
 const SESION = "cap-2026-11-27";
 const AUTORIZA = "cap-1"; // versión del texto de autorización mostrado en p-datos
 const ENTORNOS = {
@@ -47,6 +47,7 @@ function mostrar(id) {
   window.scrollTo(0, 0);
   if (id !== "p-camara") apagarCamara();
   if (id === "p-fin") pintarResumen();
+  if (S.foto && S.foto.pendiente) reintentarFoto();
   if (!["p-camara", "p-enviando", "p-inicio"].includes(id)) { S.pantalla = id; guardar(); }
   vivo.t0 = Date.now();
 }
@@ -91,7 +92,8 @@ function avance(paso, segundos) {
 function mensajeDe(err) {
   const m = (err && (err.message || err.error_description)) || "";
   if (m.includes("cap_cerrada")) return "La capacitación ya cerró el registro. Puede hacer el ejercicio igual.";
-  if (/Failed to fetch|NetworkError|network|sin_servidor/i.test(m)) return "Sin conexión. Revise los datos o el wifi.";
+  if (/Failed to fetch|NetworkError|network|sin_servidor|Load failed/i.test(m))
+    return navigator.onLine === false ? "Su celular no tiene internet. Revise los datos o el wifi." : "No pudimos comunicarnos con el sistema.";
   return "Algo falló al guardar. Puede seguir con el ejercicio.";
 }
 
@@ -261,24 +263,56 @@ async function enviarFoto(blob) {
     mostrar("p-foto-ok");
   } catch (e) {
     if ((e.message || "").includes("cap_foto_repetida")) { S.foto = S.foto || { hora: new Date().toISOString(), gps: "ok", conFoto: true }; guardar(); pintarFotoOk(); mostrar("p-foto-ok"); return; }
+    if (blob || S.selfie) {
+      // La foto queda en el celular (entra al PDF) y el envío se reintenta solo en cada paso.
+      const pos = vivo.pos && Date.now() - vivo.pos.t < 120000 ? vivo.pos : null;
+      S.foto = { hora: new Date().toISOString(), gps: pos ? "ok" : (vivo.gps || "tiempo"), acc: pos ? pos.acc : null,
+        pos: pos ? { lat: pos.lat, lng: pos.lng, acc: pos.acc } : null, camara: vivo.camara, conFoto: true, pendiente: true };
+      guardar(); pintarFotoOk(); mostrar("p-foto-ok");
+      return;
+    }
     mostrar("p-foto");
     error("f-error", mensajeDe(e) + " Intente de nuevo o toque «No puedo tomar la foto».");
   }
 }
+function aBlob(dataURL) {
+  const [cab, b64] = dataURL.split(","); const bin = atob(b64); const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return new Blob([u], { type: (cab.match(/data:([^;]+)/) || [])[1] || "image/jpeg" });
+}
+let reintentando = false;
+async function reintentarFoto() {
+  if (reintentando || !S.foto || !S.foto.pendiente || !S.selfie || !sb) return;
+  reintentando = true;
+  try {
+    if (!(await asegurarRegistro())) return;
+    const { error: e } = await sb.storage.from("capacitacion").upload(`${S.reg.id}.jpg`, aBlob(S.selfie), { contentType: "image/jpeg", upsert: false });
+    if (e && !/exists|Duplicate/i.test(e.message || "")) return;
+    const p = S.foto.pos;
+    try {
+      const r = await rpc("cap_foto", { p_id: S.reg.id, p_token: S.reg.token, p_camara: S.foto.camara || "directa",
+        p_lat: p ? p.lat : null, p_lng: p ? p.lng : null, p_precision_m: p ? p.acc : null, p_gps: S.foto.gps || "tiempo" });
+      S.foto.hora = r.hora;
+    } catch (e2) { if (!(e2.message || "").includes("cap_foto_repetida")) return; }
+    S.foto.pendiente = false; guardar();
+  } catch { /* se reintenta en el siguiente paso */ }
+  finally { reintentando = false; }
+}
 function pintarFotoOk() {
   const h = new Date(S.foto.hora);
-  $("r-titulo").textContent = S.foto.conFoto ? "¡Foto registrada!" : "Registro guardado sin foto";
+  $("r-titulo").textContent = !S.foto.conFoto ? "Registro guardado sin foto" : S.foto.pendiente ? "¡Foto tomada!" : "¡Foto registrada!";
   $("r-hora").textContent = horaTexto(h);
   $("r-fecha").textContent = fechaLarga(h);
-  const ok = S.foto.gps === "ok";
+  const ok = S.foto.gps === "ok" && !S.foto.pendiente;
   const est = $("r-gps");
   est.dataset.estado = ok ? "verde" : "amarillo";
-  est.textContent = ok ? `Ubicación registrada · ±${Math.round(S.foto.acc || 0)} m` : "Sin ubicación";
+  est.textContent = S.foto.gps === "ok" ? `Ubicación ±${Math.round(S.foto.acc || 0)} m` : "Sin ubicación";
   $("r-sello").dataset.estado = S.foto.conFoto && ok ? "verde" : "amarillo";
   $("r-icono").setAttribute("href", S.foto.conFoto && ok ? "#i-ok" : "#i-rev");
   const av = $("r-aviso");
   av.hidden = ok;
-  av.textContent = S.foto.gps === "denegado" ? "El celular no dio permiso de ubicación. Para la planilla habrá que activarlo en los ajustes del navegador." : "El celular no encontró la ubicación a tiempo. No pasa nada: ya quedó anotado.";
+  av.textContent = S.foto.pendiente ? "Su foto quedó guardada en su celular y saldrá en su PDF. La enviaremos sola cuando haya conexión: siga con el ejercicio."
+    : S.foto.gps === "denegado" ? "El celular no dio permiso de ubicación. Para la planilla habrá que activarlo en los ajustes del navegador." : "El celular no encontró la ubicación a tiempo. No pasa nada: ya quedó anotado.";
 }
 $("f-omitir").addEventListener("click", async () => {
   vivo.camara = "sin_foto";
@@ -548,4 +582,5 @@ $("z-compartir").addEventListener("click", async () => {
   finally { ocupado(btn, false); }
 });
 
+window.addEventListener("online", () => reintentarFoto());
 iniciar();
