@@ -387,7 +387,8 @@ function filas() {
 function pintarResumen() {
   $("z-nombre").textContent = (S.nombre || "").split(" ")[0];
   const zf = $("z-foto");
-  zf.hidden = !S.selfie; if (S.selfie) zf.src = S.selfie;
+  zf.replaceChildren(); zf.hidden = !S.selfie;
+  if (S.selfie) { const im = new Image(); im.className = "foto-recuerdo"; im.alt = "Mi foto del día"; im.src = S.selfie; zf.append(im); }
   const dl = $("z-resumen"); dl.replaceChildren();
   for (const [k, v] of filas()) {
     const d = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
