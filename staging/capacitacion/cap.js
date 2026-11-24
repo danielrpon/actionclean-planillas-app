@@ -5,7 +5,7 @@
    la red nunca bloquea el ejercicio. */
 "use strict";
 
-const VERSION = "cap-v1.2";
+const VERSION = "cap-v1.3";
 const SESION = "cap-2026-11-27";
 const AUTORIZA = "cap-1"; // versión del texto de autorización mostrado en p-datos
 const ENTORNOS = {
@@ -576,12 +576,12 @@ $("z-pdf").addEventListener("click", async () => {
   const btn = $("z-pdf"); ocupado(btn, true); error("z-error", "");
   try {
     const blob = await generarPDF();
+    avance("pdf", (Date.now() - vivo.t0) / 1000); // antes de descargar: en iPhone la descarga puede sacar la página
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = nombreArchivo();
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 60000);
     $("z-donde").hidden = false;
-    avance("pdf", (Date.now() - vivo.t0) / 1000);
   } catch { error("z-error", "No se pudo crear el PDF. Tome un pantallazo de su plan."); }
   finally { ocupado(btn, false); }
 });
