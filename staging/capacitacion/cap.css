@@ -81,3 +81,4 @@
 .estado[data-estado=gris]{background:var(--fondo);color:var(--suave)}
 #f-permisos span{flex:1}
 .foto-recuerdo{display:block;width:120px;height:150px;object-fit:cover;border-radius:14px;border:3px solid var(--morado);margin-top:14px}
+.resumen div.bloque dd+dd{margin-top:6px}

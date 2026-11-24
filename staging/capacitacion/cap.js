@@ -5,7 +5,7 @@
    la red nunca bloquea el ejercicio. */
 "use strict";
 
-const VERSION = "cap-v1.1";
+const VERSION = "cap-v1.2";
 const SESION = "cap-2026-11-27";
 const AUTORIZA = "cap-1"; // versión del texto de autorización mostrado en p-datos
 const ENTORNOS = {
@@ -30,11 +30,12 @@ const vivo = { stream: null, pos: null, gps: null, watchId: null, t0: Date.now()
 function nuevoEstado() {
   return { reg: null, nombre: "", foto: null, pantalla: "p-inicio",
     hormiga: { sel: [], otro: 0 }, b: {}, prima: { total: 0, deudas: 0, enero: 0, navidad: 0, editado: false },
-    meta: { que: "", cuanto: 0, q: 4 }, comp: { val: "", otro: "" } };
+    meta: { que: "", cuanto: 0, q: 4 }, comp: { vals: [], otro: "" } };
 }
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(S)); } catch { /* modo privado: seguimos sin guardar */ } }
 function cargar() {
   try { const t = localStorage.getItem(CLAVE); if (t) S = Object.assign(nuevoEstado(), JSON.parse(t)); } catch { /* nada */ }
+  if (!Array.isArray(S.comp.vals)) S.comp = { vals: S.comp.val ? [S.comp.val] : [], otro: S.comp.otro || "" }; // estado de cap-v1.0
 }
 
 /* ───────── Utilidades ───────── */
@@ -316,6 +317,7 @@ function pintarFotoOk() {
 }
 $("f-omitir").addEventListener("click", async () => {
   vivo.camara = "sin_foto";
+  iniciarGPS(); // dentro del toque: aun sin foto, la prueba registra si la ubicación funciona
   if (!S.reg && !(await asegurarRegistro())) { S.foto = { hora: new Date().toISOString(), gps: vivo.gps || "tiempo", conFoto: false, local: true }; guardar(); mostrar("p-hormiga"); return; }
   await enviarFoto(null);
 });
@@ -389,12 +391,16 @@ function pintarMeta() {
 
 /* ───────── 7 · Compromiso ───────── */
 document.querySelectorAll("input[name=comp]").forEach((r) => r.addEventListener("change", () => {
-  S.comp.val = r.value; guardar();
-  $("c-otro-campo").hidden = r.value !== "otro";
-  if (r.value === "otro") $("c-otro").focus();
+  S.comp.vals = [...document.querySelectorAll("input[name=comp]:checked")].map((x) => x.value); guardar();
+  const otro = S.comp.vals.includes("otro");
+  $("c-otro-campo").hidden = !otro;
+  if (otro && r.value === "otro") $("c-otro").focus();
 }));
 $("c-otro").addEventListener("input", () => { S.comp.otro = $("c-otro").value.slice(0, 120); guardar(); });
-function compromiso() { return S.comp.val === "otro" ? (S.comp.otro || "").trim() : S.comp.val; }
+function compromisos() { // en el orden de la pantalla; «otro» se reemplaza por lo que escribió
+  return [...document.querySelectorAll("input[name=comp]")].map((x) => x.value).filter((v) => S.comp.vals.includes(v))
+    .map((v) => (v === "otro" ? (S.comp.otro || "").trim() : v)).filter(Boolean);
+}
 
 /* ───────── Pintar todo (al recargar) ───────── */
 function pintarTodo() {
@@ -403,8 +409,8 @@ function pintarTodo() {
   CAMPOS_B.forEach((k) => escribir($("b-" + k), S.b[k] || 0)); pintarBalance();
   ["total", "deudas", "enero", "navidad"].forEach((k) => escribir($("p-" + k), S.prima[k] || 0)); pintarPrima();
   $("m-que").value = S.meta.que || ""; escribir($("m-cuanto"), S.meta.cuanto); pintarMeta();
-  document.querySelectorAll("input[name=comp]").forEach((r) => { r.checked = r.value === S.comp.val; });
-  $("c-otro").value = S.comp.otro || ""; $("c-otro-campo").hidden = S.comp.val !== "otro";
+  document.querySelectorAll("input[name=comp]").forEach((r) => { r.checked = S.comp.vals.includes(r.value); });
+  $("c-otro").value = S.comp.otro || ""; $("c-otro-campo").hidden = !S.comp.vals.includes("otro");
   if (S.foto) pintarFotoOk();
 }
 
@@ -428,10 +434,12 @@ function pintarResumen() {
     const d = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
     dt.textContent = k; dd.textContent = v; d.append(dt, dd); dl.append(d);
   }
-  const c = compromiso();
-  if (c) {
-    const d = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
-    d.className = "bloque"; dt.textContent = "Mi compromiso"; dd.textContent = c; d.append(dt, dd); dl.append(d);
+  const cs = compromisos();
+  if (cs.length) {
+    const d = document.createElement("div"), dt = document.createElement("dt");
+    d.className = "bloque"; dt.textContent = cs.length > 1 ? "Mis compromisos" : "Mi compromiso"; d.append(dt);
+    for (const c of cs) { const dd = document.createElement("dd"); dd.textContent = c; d.append(dd); }
+    dl.append(d);
   }
   $("z-compartir").hidden = !(navigator.canShare && window.File && navigator.canShare({ files: [new File(["x"], "x.pdf", { type: "application/pdf" })] }));
 }
@@ -505,9 +513,14 @@ async function generarPDF() {
   fila("¿Qué quiero?", S.meta.que || "—"); fila("¿Cuánto cuesta?", plata(S.meta.cuanto));
   fila("¿En cuántas quincenas?", String(S.meta.q)); fila("Guardo cada quincena", plata(cuotaMeta()), true);
 
-  seccion("5. Mi compromiso desde hoy");
-  y += 22; doc.setFont("helvetica", "normal"); doc.setFontSize(13); doc.setTextColor(...tinta);
-  doc.text(doc.splitTextToSize(compromiso() || "—", W - 2 * M), M, y);
+  const cs = compromisos();
+  seccion(cs.length > 1 ? "5. Mis compromisos desde hoy" : "5. Mi compromiso desde hoy");
+  doc.setFont("helvetica", "normal"); doc.setFontSize(12); doc.setTextColor(...tinta);
+  for (const c of cs.length ? cs : ["—"]) {
+    y += 18;
+    const ls = doc.splitTextToSize((cs.length ? "• " : "") + c, W - 2 * M);
+    doc.text(ls, M, y); y += (ls.length - 1) * 14;
+  }
 
   doc.setTextColor(...suave); doc.setFont("helvetica", "normal"); doc.setFontSize(9);
   doc.text("Action Clean · Capacitación de finanzas personales · 27 de noviembre de 2026 · Este documento es personal.", W / 2, 792 - 24, { align: "center" });

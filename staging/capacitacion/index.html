@@ -198,12 +198,13 @@
   <section class="pantalla" id="p-compromiso" hidden>
     <div class="paso"><span>Paso 7 de 7</span><i class="p100"></i></div>
     <h1>Mi compromiso desde hoy</h1>
+    <p class="sub">Puede elegir uno o varios.</p>
     <fieldset class="motivos" id="c-opciones">
-      <legend class="sr">Elija su compromiso</legend>
-      <label class="motivo"><input type="radio" name="comp" value="Anotar lo que gasto, aunque sea poquito."> Anotar lo que gasto, aunque sea poquito</label>
-      <label class="motivo"><input type="radio" name="comp" value="Apenas me paguen, separar primero el ahorro."> Apenas me paguen, separar primero el ahorro</label>
-      <label class="motivo"><input type="radio" name="comp" value="Antes de comprar algo que quiero, esperar 3 días."> Antes de comprar algo que quiero, esperar 3 días</label>
-      <label class="motivo"><input type="radio" name="comp" value="otro"> Otro</label>
+      <legend class="sr">Elija uno o varios compromisos</legend>
+      <label class="motivo"><input type="checkbox" name="comp" value="Anotar lo que gasto, aunque sea poquito."> Anotar lo que gasto, aunque sea poquito</label>
+      <label class="motivo"><input type="checkbox" name="comp" value="Apenas me paguen, separar primero el ahorro."> Apenas me paguen, separar primero el ahorro</label>
+      <label class="motivo"><input type="checkbox" name="comp" value="Antes de comprar algo que quiero, esperar 3 días."> Antes de comprar algo que quiero, esperar 3 días</label>
+      <label class="motivo"><input type="checkbox" name="comp" value="otro"> Otro</label>
     </fieldset>
     <label class="campo" id="c-otro-campo" hidden>Escriba su compromiso
       <input id="c-otro" type="text" maxlength="120" autocomplete="off">
