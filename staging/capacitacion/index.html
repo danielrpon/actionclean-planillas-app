@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FFFFFF">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob: mediastream:; connect-src 'self' https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<title>Mi plata, mi plan · Action Clean</title>
+<link rel="icon" href="../icono.png">
+<link rel="apple-touch-icon" href="../icono.png">
+<link rel="stylesheet" href="../estilos.css">
+<link rel="stylesheet" href="cap.css">
+</head>
+<body>
+<div class="tira" role="presentation"></div>
+<main id="app">
+
+  <!-- Bienvenida -->
+  <section class="pantalla" id="p-inicio">
+    <img class="logo grande" src="../logo-completo.png" alt="Action Clean" width="400" height="160">
+    <h1 class="titulo-cap">Mi plata, <b>mi plan</b></h1>
+    <p class="sub">Capacitación de finanzas personales. Vamos paso a paso, al mismo ritmo de la presentación.</p>
+    <ol class="ruta" aria-label="Lo que vamos a hacer">
+      <li><svg aria-hidden="true"><use href="#i-camara"/></svg>Una foto para probar su celular</li>
+      <li><svg aria-hidden="true"><use href="#i-cuenta"/></svg>Sus cuentas de la quincena</li>
+      <li><svg aria-hidden="true"><use href="#i-meta"/></svg>Su meta y su compromiso</li>
+      <li><svg aria-hidden="true"><use href="#i-pdf"/></svg>Su plan en PDF para guardar</li>
+    </ol>
+    <div class="aviso info" id="i-webview" hidden>Está dentro de WhatsApp: aquí la cámara y la ubicación pueden fallar. Toque los tres puntos y elija <b>Abrir en Chrome</b> (o <b>Safari</b>).</div>
+    <div class="espacio"></div>
+    <button class="btn" type="button" id="i-empezar">Empezar</button>
+    <button class="enlace" type="button" id="i-seguir" hidden>Seguir donde iba</button>
+  </section>
+
+  <!-- 1 · Datos y autorización -->
+  <section class="pantalla" id="p-datos" hidden>
+    <div class="paso"><span>Paso 1 de 7</span><i class="p14"></i></div>
+    <h1>¿Cómo se llama?</h1>
+    <form id="d-form" novalidate>
+      <label class="campo">Nombre y primer apellido
+        <input id="d-nombre" type="text" autocomplete="name" autocapitalize="words" maxlength="80" required>
+      </label>
+      <div class="autoriza">
+        <p class="autoriza-t">Antes de seguir, lea esto:</p>
+        <p>Action Clean va a guardar <b>su nombre, una foto suya, el lugar, la fecha y la hora</b> en que la toma, y el <b>tipo de celular</b> que usa.</p>
+        <p>Es solo para probar si esta herramienta funciona en sus celulares, pensando en registrar entradas y salidas más adelante.</p>
+        <p><b>Los números de su plata no se envían:</b> se quedan solo en su celular.</p>
+        <p>Estos datos se borran a más tardar el 31 de enero de 2027. Si no quiere participar, haga el ejercicio con un compañero.</p>
+        <label class="motivo"><input type="checkbox" id="d-acepto"> Autorizo</label>
+      </div>
+      <p class="error" id="d-error" hidden></p>
+      <div class="espacio"></div>
+      <button class="btn" type="submit" id="d-seguir">Seguir</button>
+    </form>
+  </section>
+
+  <!-- 2 · Foto -->
+  <section class="pantalla" id="p-foto" hidden>
+    <div class="paso"><span>Paso 2 de 7</span><i class="p28"></i></div>
+    <h1>Tómese una foto</h1>
+    <p class="sub">Así probamos si la cámara y la ubicación de su celular funcionan bien.</p>
+    <div class="gps" id="f-gps" data-estado="buscando"><svg aria-hidden="true"><use href="#i-pin"/></svg><span>La ubicación se pide al abrir la cámara</span></div>
+    <div class="aviso rev" id="f-permisos"><svg aria-hidden="true"><use href="#i-rev"/></svg><span>Cuando el celular pregunte, toque <b>Permitir</b> para la cámara y para la ubicación.</span></div>
+    <p class="error" id="f-error" hidden></p>
+    <div class="espacio"></div>
+    <button class="btn" type="button" id="f-abrir"><svg aria-hidden="true"><use href="#i-camara"/></svg><span>Abrir la cámara</span></button>
+    <button class="enlace" type="button" id="f-omitir">No puedo tomar la foto</button>
+  </section>
+
+  <!-- Cámara -->
+  <section class="pantalla oscura" id="p-camara" hidden>
+    <div class="visor">
+      <video id="k-video" playsinline muted autoplay></video>
+      <div class="ovalo" aria-hidden="true"></div>
+      <p class="instr" id="k-instr">Ponga su cara en el óvalo</p>
+      <p class="sello-visor" id="k-sello"></p>
+    </div>
+    <div class="disparo">
+      <button id="k-disparar" type="button" aria-label="Tomar foto"></button>
+    </div>
+    <button class="enlace claro" id="k-cancelar" type="button">Cancelar</button>
+    <input id="k-respaldo" type="file" accept="image/*" capture="user" hidden>
+  </section>
+
+  <!-- Enviando -->
+  <section class="pantalla" id="p-enviando" hidden>
+    <div class="centro-vertical"><span class="giro" aria-hidden="true"></span><p class="sub" id="v-texto">Guardando su foto…</p></div>
+  </section>
+
+  <!-- Foto registrada -->
+  <section class="pantalla" id="p-foto-ok" hidden>
+    <div class="resultado">
+      <div class="sello" id="r-sello" data-estado="verde"><svg aria-hidden="true"><use id="r-icono" href="#i-ok"/></svg></div>
+      <h1 id="r-titulo">¡Foto registrada!</h1>
+      <div class="hora" id="r-hora"></div>
+      <p class="sub" id="r-fecha"></p>
+      <span class="estado" id="r-gps"></span>
+    </div>
+    <div class="aviso rev" id="r-aviso" hidden></div>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-hormiga">Seguir</button>
+  </section>
+
+  <!-- 3 · Gasto hormiga -->
+  <section class="pantalla" id="p-hormiga" hidden>
+    <div class="paso"><span>Paso 3 de 7</span><i class="p42"></i></div>
+    <h1>Mis gastos hormiga</h1>
+    <p class="sub">Toque lo que compra casi todos los días.</p>
+    <div class="fichas" id="h-fichas">
+      <button type="button" class="ficha" data-v="2000" aria-pressed="false">Tinto<b>$2.000</b></button>
+      <button type="button" class="ficha" data-v="3000" aria-pressed="false">Arepa o pan<b>$3.000</b></button>
+      <button type="button" class="ficha" data-v="3500" aria-pressed="false">Gaseosa<b>$3.500</b></button>
+      <button type="button" class="ficha" data-v="2000" aria-pressed="false">Mecato<b>$2.000</b></button>
+      <button type="button" class="ficha" data-v="2000" aria-pressed="false">Chance<b>$2.000</b></button>
+      <button type="button" class="ficha" data-v="2000" aria-pressed="false">Recarga<b>$2.000</b></button>
+    </div>
+    <label class="campo">Otro gasto diario <span class="ayuda">Opcional</span>
+      <input class="plata" id="h-otro" inputmode="numeric" autocomplete="off" placeholder="$ 0">
+    </label>
+    <div class="totales" aria-live="polite">
+      <div><small>Al día</small><span id="h-dia">$0</span></div>
+      <div><small>Al mes</small><span id="h-mes">$0</span></div>
+      <div class="fuerte"><small>Al año</small><span id="h-ano">$0</span></div>
+    </div>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-presupuesto">Seguir</button>
+    <button class="enlace" type="button" data-atras="p-foto-ok">Atrás</button>
+  </section>
+
+  <!-- 4 · Presupuesto -->
+  <section class="pantalla" id="p-presupuesto" hidden>
+    <div class="paso"><span>Paso 4 de 7</span><i class="p57"></i></div>
+    <h1>Mi presupuesto de la quincena</h1>
+    <p class="sub">Si no sabe la cifra exacta, escriba un aproximado.</p>
+    <div class="cuentas">
+      <label class="fila entra">Lo que me entra en la quincena<input class="plata" id="b-entra" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila ahorro">1. Ahorro (primero)<input class="plata" id="b-ahorro" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila">2. Casa: arriendo y servicios<input class="plata" id="b-casa" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila">3. Comida y transporte<input class="plata" id="b-comida" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila">4. Deudas<input class="plata" id="b-deudas" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila">5. Gustos<input class="plata" id="b-gustos" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+    </div>
+    <div class="balance" id="b-balance" data-estado="vacio" aria-live="polite">
+      <svg aria-hidden="true"><use id="b-icono" href="#i-cuenta"/></svg>
+      <div><small id="b-etq">Lo que me queda</small><span id="b-queda">$0</span><p id="b-msg">Escriba lo que le entra y lo que le sale.</p></div>
+    </div>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-prima">Seguir</button>
+    <button class="enlace" type="button" data-atras="p-hormiga">Atrás</button>
+  </section>
+
+  <!-- 5 · Prima -->
+  <section class="pantalla" id="p-prima" hidden>
+    <div class="paso"><span>Paso 5 de 7</span><i class="p71"></i></div>
+    <h1>Mi prima de diciembre, en 3 partes</h1>
+    <label class="campo">¿Cuánto es su prima? <span class="ayuda">Si no sabe, escriba un aproximado</span>
+      <input class="plata" id="p-total" inputmode="numeric" autocomplete="off" placeholder="$ 0">
+    </label>
+    <div class="cuentas">
+      <label class="fila">Pagar deudas<input class="plata" id="p-deudas" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila ahorro">Guardar para enero<input class="plata" id="p-enero" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+      <label class="fila">Disfrutar la Navidad<input class="plata" id="p-navidad" inputmode="numeric" autocomplete="off" placeholder="$ 0"></label>
+    </div>
+    <p class="nota" id="p-nota" aria-live="polite">Al escribir su prima, la partimos en 3. Puede cambiar cada parte.</p>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-meta">Seguir</button>
+    <button class="enlace" type="button" data-atras="p-presupuesto">Atrás</button>
+  </section>
+
+  <!-- 6 · Meta -->
+  <section class="pantalla" id="p-meta" hidden>
+    <div class="paso"><span>Paso 6 de 7</span><i class="p85"></i></div>
+    <h1>Mi meta de 90 días</h1>
+    <label class="campo">¿Qué quiero? <span class="ayuda">Ejemplo: los útiles de mi hijo</span>
+      <input id="m-que" type="text" maxlength="80" autocomplete="off">
+    </label>
+    <label class="campo">¿Cuánto cuesta?
+      <input class="plata" id="m-cuanto" inputmode="numeric" autocomplete="off" placeholder="$ 0">
+    </label>
+    <div class="campo">¿En cuántas quincenas?
+      <div class="contador">
+        <button type="button" id="m-menos" aria-label="Una quincena menos">−</button>
+        <output id="m-quincenas" aria-live="polite">4</output>
+        <button type="button" id="m-mas" aria-label="Una quincena más">+</button>
+      </div>
+    </div>
+    <div class="balance" id="m-resultado" data-estado="vacio" aria-live="polite">
+      <svg aria-hidden="true"><use href="#i-meta"/></svg>
+      <div><small>Guardo cada quincena</small><span id="m-cuota">$0</span></div>
+    </div>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-compromiso">Seguir</button>
+    <button class="enlace" type="button" data-atras="p-prima">Atrás</button>
+  </section>
+
+  <!-- 7 · Compromiso -->
+  <section class="pantalla" id="p-compromiso" hidden>
+    <div class="paso"><span>Paso 7 de 7</span><i class="p100"></i></div>
+    <h1>Mi compromiso desde hoy</h1>
+    <fieldset class="motivos" id="c-opciones">
+      <legend class="sr">Elija su compromiso</legend>
+      <label class="motivo"><input type="radio" name="comp" value="Anotar lo que gasto, aunque sea poquito."> Anotar lo que gasto, aunque sea poquito</label>
+      <label class="motivo"><input type="radio" name="comp" value="Apenas me paguen, separar primero el ahorro."> Apenas me paguen, separar primero el ahorro</label>
+      <label class="motivo"><input type="radio" name="comp" value="Antes de comprar algo que quiero, esperar 3 días."> Antes de comprar algo que quiero, esperar 3 días</label>
+      <label class="motivo"><input type="radio" name="comp" value="otro"> Otro</label>
+    </fieldset>
+    <label class="campo" id="c-otro-campo" hidden>Escriba su compromiso
+      <input id="c-otro" type="text" maxlength="120" autocomplete="off">
+    </label>
+    <div class="espacio"></div>
+    <button class="btn" type="button" data-sig="p-fin">Ver mi plan</button>
+    <button class="enlace" type="button" data-atras="p-meta">Atrás</button>
+  </section>
+
+  <!-- Fin -->
+  <section class="pantalla" id="p-fin" hidden>
+    <h1>Mi plan, <span id="z-nombre"></span></h1>
+    <p class="sub">Su PDF trae su foto, su plan y las memorias de hoy. Guárdelo para mirarlo en cada quincena.</p>
+    <img class="foto-recuerdo" id="z-foto" alt="Mi foto del día" hidden>
+    <dl class="resumen" id="z-resumen"></dl>
+    <p class="error" id="z-error" hidden></p>
+    <div class="espacio"></div>
+    <button class="btn" type="button" id="z-pdf"><svg aria-hidden="true"><use href="#i-pdf"/></svg><span>Descargar mi PDF</span></button>
+    <button class="btn sec" type="button" id="z-compartir" hidden><svg aria-hidden="true"><use href="#i-enviar"/></svg><span>Enviármelo por WhatsApp</span></button>
+    <p class="nota-centro" id="z-donde" hidden>Quedó en la carpeta <b>Descargas</b> (o <b>Archivos</b> en iPhone).</p>
+    <button class="enlace" type="button" data-atras="p-compromiso">Atrás</button>
+  </section>
+
+</main>
+<footer class="pie"><span id="pie-version"></span><span>Action Clean · Expertos en Limpieza</span></footer>
+
+<svg width="0" height="0" class="sr" aria-hidden="true">
+  <symbol id="i-camara" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12.3 2.7 2.7L16.2 9.4"/></symbol>
+  <symbol id="i-rev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 21.5 20h-19z"/><path d="M12 10v4.2M12 17.2v.1"/></symbol>
+  <symbol id="i-mal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="m9.2 9.2 5.6 5.6M14.8 9.2l-5.6 5.6"/></symbol>
+  <symbol id="i-cuenta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8.5 7h7M8.5 11h1M12 11h1M15.5 11h.01M8.5 14.5h1M12 14.5h1M15.5 14.5v3M8.5 17.5h1M12 17.5h1"/></symbol>
+  <symbol id="i-meta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4.5h12l-2.2 4 2.2 4H5"/></symbol>
+  <symbol id="i-pdf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9.5 14.5 12 17l2.5-2.5"/></symbol>
+  <symbol id="i-enviar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></symbol>
+</svg>
+<script src="../vendor/supabase.js"></script>
+<script src="../vendor/jspdf-2.5.1.umd.min.js"></script>
+<script src="cap.js"></script>
+</body>
+</html>

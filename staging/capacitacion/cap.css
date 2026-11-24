@@ -1,0 +1,83 @@
+/* Capacitación «Mi plata, mi plan» · extiende estilos.css de la planilla (mismos tokens, campos y botones). */
+.logo.grande{height:76px;margin:10px 0 2px}
+.titulo-cap{font-size:40px;font-weight:300;letter-spacing:-.02em;line-height:1.05;margin-top:18px}
+.titulo-cap b{font-weight:700;color:var(--morado)}
+
+.ruta{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-direction:column;gap:10px}
+.ruta li{display:flex;align-items:center;gap:14px;font-size:18px;font-weight:600;min-height:56px;padding:8px 14px;border-radius:14px;background:var(--fondo)}
+.ruta svg{width:28px;height:28px;flex:none;color:var(--azul)}
+
+/* Progreso del ejercicio */
+.paso{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.paso span{font-size:15px;font-weight:700;color:var(--azul);font-variant-numeric:tabular-nums}
+.paso i{display:block;height:6px;border-radius:3px;background:var(--linea);position:relative;overflow:hidden}
+.paso i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:0;background:var(--marca)}
+.paso i.p14::after{width:14%}.paso i.p28::after{width:28%}.paso i.p42::after{width:42%}.paso i.p57::after{width:57%}.paso i.p71::after{width:71%}.paso i.p85::after{width:85%}.paso i.p100::after{width:100%}
+
+/* Autorización */
+.autoriza{margin-top:20px;border-radius:14px;background:var(--fondo);padding:14px 16px 16px;font-size:17px;line-height:1.45}
+.autoriza p+p{margin-top:8px}
+.autoriza-t{font-weight:700;color:var(--morado)}
+.autoriza .motivo{margin-top:14px;background:var(--papel)}
+.motivo input[type=checkbox]{border-radius:6px}
+.motivo input[type=checkbox]:checked{box-shadow:none;background:var(--azul) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/18px no-repeat}
+
+/* Fichas de gasto hormiga */
+.fichas{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.ficha{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:68px;padding:10px 14px;border-radius:14px;border:1.5px solid var(--linea);background:var(--papel);font:inherit;font-size:18px;font-weight:600;color:var(--tinta);text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 160ms var(--ease-out),border-color 150ms ease,background-color 150ms ease}
+.ficha b{font-size:16px;color:var(--suave);font-variant-numeric:tabular-nums}
+.ficha:active{transform:scale(.97)}
+.ficha[aria-pressed=true]{border-color:var(--morado);background:#F3ECF7}
+.ficha[aria-pressed=true] b{color:var(--morado)}
+
+/* Plata */
+.plata{font-variant-numeric:tabular-nums}
+.campo input.plata{letter-spacing:0}
+.totales{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.totales div{display:flex;justify-content:space-between;align-items:baseline;border-radius:14px;background:var(--fondo);padding:12px 16px}
+.totales small{font-size:17px;font-weight:700;color:var(--suave)}
+.totales span{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
+.totales .fuerte{background:var(--morado);color:#fff}
+.totales .fuerte small{color:#E6D7EF}
+
+.cuentas{display:flex;flex-direction:column;margin-top:14px;border:1.5px solid var(--linea);border-radius:14px;overflow:hidden}
+.fila{display:grid;grid-template-columns:1fr 46%;align-items:center;gap:10px;padding:8px 10px 8px 14px;font-size:17px;font-weight:600;border-top:1px solid var(--linea)}
+.fila:first-child{border-top:0}
+.fila input{height:52px;border-radius:10px;border:1.5px solid #CDD1DD;background:var(--papel);padding:0 12px;font:inherit;font-size:20px;font-weight:700;text-align:right;color:var(--tinta);width:100%;min-width:0;transition:border-color 150ms ease,box-shadow 150ms ease}
+.fila input:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 4px rgba(31,122,192,.16)}
+.fila.entra{background:var(--info-bg)}
+.fila.ahorro{background:#F3ECF7}
+
+.balance{display:flex;align-items:center;gap:14px;margin-top:16px;border-radius:14px;padding:14px 16px;transition:background-color 150ms ease,color 150ms ease}
+.balance svg{width:34px;height:34px;flex:none}
+.balance small{display:block;font-size:14px;font-weight:700}
+.balance span{display:block;font-size:30px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.balance p{font-size:16px;margin-top:4px}
+.balance[data-estado=vacio]{background:var(--fondo);color:var(--suave)}
+.balance[data-estado=bien]{background:var(--ok-bg);color:var(--ok)}
+.balance[data-estado=justo]{background:var(--rev-bg);color:#5C3C00}
+.balance[data-estado=mal]{background:var(--mal-bg);color:var(--mal)}
+.balance[data-estado=meta]{background:var(--morado);color:#fff}
+
+.nota{font-size:16px;color:var(--suave);margin-top:12px}
+.nota.mal{color:var(--mal);font-weight:600}
+
+/* Contador de quincenas */
+.contador{display:flex;align-items:center;gap:12px;margin-top:8px}
+.contador button{width:64px;height:58px;border-radius:12px;border:1.5px solid #CDD1DD;background:var(--papel);font:inherit;font-size:28px;font-weight:700;color:var(--azul);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 160ms var(--ease-out)}
+.contador button:active{transform:scale(.95)}
+.contador button:disabled{opacity:.4}
+.contador output{min-width:64px;text-align:center;font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Resumen final */
+.resumen{margin-top:16px;border:1.5px solid var(--linea);border-radius:14px;overflow:hidden}
+.resumen div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 14px;border-top:1px solid var(--linea)}
+.resumen div:first-child{border-top:0}
+.resumen dt{font-size:16px;color:var(--suave)}
+.resumen dd{margin:0;font-size:18px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.resumen div.bloque{display:block}
+.resumen div.bloque dd{text-align:left;margin-top:4px;font-weight:600}
+
+.estado[data-estado=gris]{background:var(--fondo);color:var(--suave)}
+#f-permisos span{flex:1}
+.foto-recuerdo{display:block;width:120px;height:150px;object-fit:cover;border-radius:14px;border:3px solid var(--morado);margin-top:14px}
